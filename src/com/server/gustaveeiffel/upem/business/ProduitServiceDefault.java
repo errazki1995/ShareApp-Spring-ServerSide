@@ -2,13 +2,17 @@ package com.server.gustaveeiffel.upem.business;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.sql.Date;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JSpinner.DateEditor;
+
 import com.common.gustaveeiffel.upem.Demande;
 import com.common.gustaveeiffel.upem.IRole;
+import com.common.gustaveeiffel.upem.Image;
 import com.common.gustaveeiffel.upem.Produit;
 import com.common.gustaveeiffel.upem.ProduitService;
 import com.common.gustaveeiffel.upem.Role;
@@ -32,27 +36,45 @@ public class ProduitServiceDefault implements ProduitService,Serializable {
 		roledao = new RoleDaoJDBC();
 	}
 
-	@Override
-	public boolean Ajouter(Produit p) throws RemoteException {
-		if(dao.insertProduit(p)) return true;
+
+
+	public boolean AjouterProduit(Produit p,List<Image>images) throws RemoteException {
+		if(dao.insertProduit(p, images)) return true;
 		return false;
 	}
-
 	@Override
-	public boolean Emprunter(int produitid, int utilisateurid) throws RemoteException {
-		
-		Produit p= dao.chercherProduitParId(produitid);
-		if(p==null) return false;
+	public boolean Emprunter(int produitid, int utilisateurid,Date dateRetour) throws RemoteException {
 
-		else {
-			if(!p.getEstDispo()) {
+		Produit p= dao.chercherProduitParId(produitid);
+		if(p==null) return false;// produit non trouvé erreur quelque part
+		else {//produit trouvé
+			if(!p.getEstDispo()) {// pas dispo
 				ajouterEnAttente(p,utilisateurid);
-				return true;
+				return false;
 			}
 			else {
+				if(listeDemandes(produitid)!=null) {
+					Demande demandePrioritaire= prioritaire(produitid);
+					if(utilisateurid!= demandePrioritaire.getUtilisateurid()) {
+						return false;
+					}
+					else {
+						p.setEstDispo(false);
+						modifierProduit(p.getProduitId(),p);
+						dao.Emprunter(produitid, utilisateurid,dateRetour);
+						return true;
+					}
+				}
+				else {
+					p.setEstDispo(false);
+					modifierProduit(p.getProduitId(),p);
+					dao.Emprunter(produitid, utilisateurid,dateRetour);
+					return true;
+				}
+
+
 			}
 		}
-		return false;
 	}
 
 	@Override
@@ -73,8 +95,22 @@ public class ProduitServiceDefault implements ProduitService,Serializable {
 
 
 	@Override
-	public void restituer(Produit p, Utilisateur u) throws RemoteException{
-
+	public boolean restituer(int produitid, int userid) throws RemoteException{
+	Produit p  = chercherProduitParId(produitid);
+		if(p!=null) {
+			if(listeDemandes(produitid)!=null) {
+				String nomproduit=p.getNomProduit();
+				Demande demande = prioritaire(produitid);
+				p.setEstDispo(false);
+				modifierProduit(p.getProduitId(),p);
+				informerUtilisateur("Le produit "+nomproduit+" est pret pour l'Emprunt", demande.getUtilisateurid(),produitid);
+				return true;
+			}
+			return false;
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override
@@ -96,7 +132,7 @@ public class ProduitServiceDefault implements ProduitService,Serializable {
 	}
 
 	public void sauvegarderPriorite(List<Utilisateur> utilisateurs,int produitid)throws RemoteException{
-			
+
 		for(int i=0;i<utilisateurs.size();i++) { 
 			modifierDemande(produitid,utilisateurs.get(i).getUserid(), i);
 
@@ -211,7 +247,6 @@ public class ProduitServiceDefault implements ProduitService,Serializable {
 	}
 	@Override
 	public boolean ajouterDemande(Demande d,int produitid,int utilisateurid) throws RemoteException{
-		System.out.println("In AjouterDemande function :"+ produitid);
 		Produit p = dao.chercherProduitParId(produitid);
 
 		if(p!=null) {
@@ -226,20 +261,25 @@ public class ProduitServiceDefault implements ProduitService,Serializable {
 	public boolean modifierDemande(int produit, int utilisateurid, int priorite) throws RemoteException {
 		return dao.modifierDemande(produit, utilisateurid, priorite);
 	}
+	public Demande prioritaire(int produitid)throws RemoteException {
+		return dao.demandePriorite(produitid);
+	}
+	public void decalerPriorite(int produitid) throws RemoteException{
+		dao.declarerPriorite(produitid);
+	}
 
+
+	@Override
+	public boolean informerUtilisateur(String notification, int utilid, int produitid) throws RemoteException {
+		return dao.inserernotification(notification, utilid, produitid);
+	}
+
+
+
+	@Override
+	public Demande chercherDemandeParUtilisateur(int utilid, int produitid) throws RemoteException {
+		return dao.chercherDemandeParUtilisateur(utilid, produitid);
+	}
 
 }
-/*Lors de l'emprunt d'un utilisateur on doit savoir 
- *si'il est on top veut dire c'est a lui d'emprunter 
- *sinon on lui notifie qu'il reste dans la liste d'attente 
- *et notifie on meme temps l'utilisateur qui doit l'avoir pour le rï¿½cuperer
- */
 
-/*
- *recuperer le produit 
- * on chercher si y'a pas de demande sur le produit (estDispo false)
- *on emprunte pour cet utilisateur 
- *sinon on regarde qui est dans la liste d'attente
- *
- *
- */

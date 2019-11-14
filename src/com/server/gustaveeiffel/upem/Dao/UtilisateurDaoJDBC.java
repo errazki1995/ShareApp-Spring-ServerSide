@@ -2,10 +2,13 @@ package com.server.gustaveeiffel.upem.Dao;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Vector;
 
 import com.common.gustaveeiffel.upem.IUtilisateur;
+import com.common.gustaveeiffel.upem.Produit;
 import com.common.gustaveeiffel.upem.Utilisateur;
 import com.server.gustaveeiffel.upem.datasource.Database;
 import com.server.gustaveeiffel.upem.datasource.IDatabase;
@@ -13,7 +16,7 @@ import com.server.gustaveeiffel.upem.datasource.IDatabase;
 public class UtilisateurDaoJDBC implements UtilisateurDao,Serializable {
 	public IDatabase db;
 	public UtilisateurDaoJDBC() throws RemoteException {
-		IDatabaseLauncher launcher= new DatabaseLauncher();
+		Iconfig launcher= new Config();
 		
 		this.db=  launcher.dbinit();
 		if(db==null) {
@@ -62,11 +65,10 @@ public class UtilisateurDaoJDBC implements UtilisateurDao,Serializable {
 
 
 	@Override
-	public void informerUtilisateur(IUtilisateur u) {
-		/*informer l'utilisateur suivant que le projet demand�
-		 *est bien libre
-		 */
-
+	public boolean informerUtilisateur(Utilisateur u,Produit p,String notification) throws RemoteException {
+		Date date = new Date(Calendar.getInstance().getTime().getTime());
+		if(db.Insert("notification", null,notification,u.getUserid(),date,false)>0) return true;
+			return false;
 	}
 
 public boolean supprimerUtilisateur(int id)  throws RemoteException{
@@ -129,6 +131,11 @@ public boolean supprimerUtilisateur(int id)  throws RemoteException{
 	  else
 	  return " Database instanciation Returned";
   }
+
+@Override
+public String selectionnerparUseretMotdepasse(String user, String password) {
+return null;	
+}
 
 
 

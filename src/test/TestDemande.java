@@ -3,8 +3,8 @@ package test;
 import java.rmi.RemoteException;
 import java.util.Calendar;
 
-import com.server.gustaveeiffel.upem.Dao.DatabaseLauncher;
-import com.server.gustaveeiffel.upem.Dao.IDatabaseLauncher;
+import com.server.gustaveeiffel.upem.Dao.Config;
+import com.server.gustaveeiffel.upem.Dao.Iconfig;
 import com.server.gustaveeiffel.upem.business.ProduitServiceDefault;
 import com.server.gustaveeiffel.upem.business.UtilisateurServiceDefault;
 import com.server.gustaveeiffel.upem.datasource.IDatabase;
@@ -18,7 +18,7 @@ public class TestDemande {
 	}
 
 	public IDatabase initDb() throws RemoteException {
-		IDatabaseLauncher start = new DatabaseLauncher();
+		Iconfig start = new Config();
 		return start.dbinit();
 	}
 

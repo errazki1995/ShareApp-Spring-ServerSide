@@ -9,12 +9,15 @@ import com.server.gustaveeiffel.upem.datasource.Database;
 import com.server.gustaveeiffel.upem.datasource.IDatabase;
 import com.server.gustaveeiffel.upem.datasource.MySQLDataSource;
 
-public class DatabaseLauncher extends UnicastRemoteObject implements Serializable, IDatabaseLauncher{
+public class Config extends UnicastRemoteObject implements Serializable, Iconfig{
 
 	private  IDatabase db;
 	private DataSource ds;
+	private static String serverurl="";
+	private static String image_dump_path ="src/images/";
+	public static String default_image_name="default.png";
 	
-	public DatabaseLauncher() throws RemoteException {
+	public Config() throws RemoteException {
 		try {
 			ds = new MySQLDataSource("localhost","db_partage","root");
 			db = new Database(ds);
@@ -22,9 +25,10 @@ public class DatabaseLauncher extends UnicastRemoteObject implements Serializabl
 			e.printStackTrace();
 		}
 	}
-	/* (non-Javadoc)
-	 * @see com.server.gustaveeiffel.upem.Dao.IDatabaseLauncher#dbinit()
-	 */
+
+	public static String  getImagePath() {
+		return serverurl!=""? image_dump_path :serverurl+image_dump_path ;
+	}
 	@Override
 	public  IDatabase dbinit()throws RemoteException  {
 		return db;

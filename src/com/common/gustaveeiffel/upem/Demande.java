@@ -6,7 +6,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-//ne pas oublier de regler le probleme date
 public class Demande extends UnicastRemoteObject implements Serializable{
 	private int demandeid;
 	private Date datedemande;
@@ -20,7 +19,6 @@ public class Demande extends UnicastRemoteObject implements Serializable{
 	public Demande() throws RemoteException{
 
 	}
-	//Stocker bd sans id (car autoincrement)
 	public Demande( Date datedemande, Utilisateur utilisateur,
 			Produit produit, int priorite)throws RemoteException {
 		super();

@@ -13,7 +13,7 @@ public class RoleDaoJDBC implements RoleDao,Serializable {
 	private IDatabase db;
 	
 	public RoleDaoJDBC() throws RemoteException {
-		IDatabaseLauncher launcher= new DatabaseLauncher();
+		Iconfig launcher= new Config();
 		
 		this.db= launcher.dbinit();
 	}

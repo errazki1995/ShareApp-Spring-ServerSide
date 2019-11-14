@@ -30,5 +30,7 @@ public interface IDatabase extends Remote {
 	int Delete(String tableName, String key, Object value) throws RemoteException;
 
 	String[] getTableNames() throws RemoteException;
+	public String[][] select2criteria(String tablename,String key0,Object value0,String key1,Object value1) throws RemoteException;
+
 
 }

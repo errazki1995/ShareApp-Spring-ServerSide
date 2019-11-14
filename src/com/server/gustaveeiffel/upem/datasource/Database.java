@@ -131,6 +131,12 @@ public class Database extends UnicastRemoteObject implements IDatabase,Serializa
 		String query = "SELECT * FROM "+delimit(tableName)+" WHERE "+delimit(key)+"  ='"+value+"'";
 		return executeQuery(query);
 	}
+	
+	
+	public String[][] select2criteria(String tablename,String key0,Object value0,String key1,Object value1) throws RemoteException{
+		String query = "SELECT * FROM "+delimit(tablename)+" WHERE "+delimit(key0)+"  ='"+value0+"' and "+delimit(key1)+" ='"+value1+"'";
+		return executeQuery(query);
+	}
 
 	/* (non-Javadoc)
 	 * @see com.server.gustaveeiffel.upem.datasource.IDatabasee#selectLike(java.lang.String, java.lang.String, java.lang.String)

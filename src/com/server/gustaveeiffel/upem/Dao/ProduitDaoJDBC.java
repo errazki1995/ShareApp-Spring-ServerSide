@@ -2,12 +2,16 @@ package com.server.gustaveeiffel.upem.Dao;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Vector;
 
 import com.server.gustaveeiffel.upem.datasource.IDatabase;
 import com.common.gustaveeiffel.upem.Demande;
 import com.common.gustaveeiffel.upem.IUtilisateur;
+import com.common.gustaveeiffel.upem.Image;
+import com.common.gustaveeiffel.upem.Notification;
 import com.common.gustaveeiffel.upem.Produit;
 
 public class ProduitDaoJDBC  implements ProduitDao,Serializable {
@@ -15,22 +19,33 @@ public class ProduitDaoJDBC  implements ProduitDao,Serializable {
 	private IDatabase db;
 
 	public ProduitDaoJDBC() throws RemoteException {
-		IDatabaseLauncher launcher= new DatabaseLauncher();
-		
+		Iconfig launcher= new Config();
+
 		this.db= launcher.dbinit();
 	}
 
 	@Override
-	public boolean insertProduit(Produit p) throws RemoteException {
+	public boolean insertProduit(Produit p,List<Image> images) throws RemoteException {
 		System.out.println(p);
+		boolean verifierstatus=true;
 		int dispo=0;
 		if(p.getEstDispo()) {
 			dispo=1;
 		}
+		if(images!=null) {
+			for(Image image: images) {
+				if(!insererImage(Config.getImagePath(),image.getNomfichier(),p.getProduitId())) verifierstatus=false;
+			}
+		}
+		else if (images==null) {
+			if(!insererImage(Config.getImagePath(),Config.default_image_name,p.getProduitId())) verifierstatus=false;
+
+		}
+		
 		if(db.Insert("produit",p.getProduitId(),p.getNomProduit(),p.getNote(),p.getCommentaire(),
 				p.getNombreEmprunt(),p.getTypeProduit()
-				,p.getUtilisateurId(),dispo,p.getDateAjout())>0) return true;
-		return false;
+				,p.getUtilisateurId(),dispo,p.getDateAjout())<=0) verifierstatus= false;
+	return verifierstatus;	// si true tout est bien
 	}
 
 
@@ -40,7 +55,6 @@ public class ProduitDaoJDBC  implements ProduitDao,Serializable {
 		if (data == null) return null;
 		List<Produit> produits = new Vector<>();
 		for (int i = 1; i < data.length; i++) {
-			//System.out.println(data[i]);
 			produits.add(new Produit(data[i]));
 		}
 		return produits;
@@ -120,11 +134,11 @@ public class ProduitDaoJDBC  implements ProduitDao,Serializable {
 
 	@Override
 	public boolean modifierDemande(int produit, int utilisateurid, int priorite) throws RemoteException{
-		 if(db.UpdateQuery("update demande set priorite="+priorite+" where utilisateurid="+utilisateurid+" and produitid="+produit+"")>0) {
-			 return true;
-		 }
-		 return false;
-	
+		if(db.UpdateQuery("update demande set priorite="+priorite+" where utilisateurid="+utilisateurid+" and produitid="+produit+"")>0) {
+			return true;
+		}
+		return false;
+
 	}
 
 	@Override
@@ -144,12 +158,65 @@ public class ProduitDaoJDBC  implements ProduitDao,Serializable {
 		}
 	}
 
-	public boolean insererEmprunt(int produitid,int utilisateurid)throws RemoteException {
-		//if(db.Insert("demande",null,d.getDatedemande(),d.getUtilisateurid(),d.getProduitid(),d.getPriorite())>0) return true;
+
+	@Override
+	public boolean Emprunter(int produitid, int utilisateurid,Date dateRetour) throws RemoteException {
+		java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+		if(db.Insert("emprunt",null,date,dateRetour,produitid,utilisateurid)>0)return true;
 		return false;
 	}
-	
 
+	@Override
+	public boolean insererproduitImage(int produitid, String chemin, String nomfichier) throws RemoteException {
+		if(db.Insert("images",null,chemin,nomfichier,produitid)>0)return true;
+		return false;
+	}
+
+	@Override
+	public List<Image> chargerImages(int produitid) throws RemoteException {
+		String data[][] = db.select("images","produitid",produitid);
+		List<Image> listImages = new Vector<Image>();
+		if(data==null)return null;  
+		else for(int i=1;i<data.length;i++) {
+			listImages.add(new Image(data[i]));
+		}
+		return listImages;
+
+	}
+
+
+	public  boolean insererImage(String chemin,String nom,int produitid) throws RemoteException {
+		if(db.Insert(null,chemin,nom,produitid)>0) return true;
+       return false;
+
+
+	}
+
+	@Override
+	public Demande demandePriorite(int produitid) throws RemoteException {
+		String data[][] = db.select("demande","priorite",0);
+		if(data==null) return null;
+		else return new Demande(data[1]);
+	}
+	@Override
+	public void declarerPriorite(int produitid) throws RemoteException{
+		db.executeQuery("update demande set priorite= priorite-1 where produitid="+produitid);
+	}
+
+	public boolean inserernotification(String notification,int utilid,int produitid) throws RemoteException {
+		java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+        if(db.Insert("notification",null,notification,utilid,date,0,produitid)>0) return true;
+		return false;
+	}
+
+	@Override
+	public Demande chercherDemandeParUtilisateur(int utilid, int produitid) throws RemoteException {
+		String[][] data =  db.select2criteria("demande", "utilisateurid", utilid, "produitid",produitid);
+		if(data==null) return null;
+		else return new Demande(data[1]);
+	}
+
+	
 
 
 

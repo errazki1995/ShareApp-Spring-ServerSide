@@ -14,7 +14,7 @@ public class TypeDaoJDBC implements TypeDao,Serializable{
 	private IDatabase db;
 	
 	public TypeDaoJDBC() throws RemoteException {
-		IDatabaseLauncher launcher= new DatabaseLauncher();
+		Iconfig launcher= new Config();
 		
 		this.db= launcher.dbinit();
 	}

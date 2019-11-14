@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 import com.common.gustaveeiffel.upem.IUtilisateur;
+import com.common.gustaveeiffel.upem.Produit;
 import com.common.gustaveeiffel.upem.Utilisateur;
 import com.common.gustaveeiffel.upem.UtilisateurService;
 import com.server.gustaveeiffel.upem.Dao.UtilisateurDao;
@@ -24,10 +25,6 @@ public  UtilisateurDao dao;
 	public boolean NouveauUtilisateur(Utilisateur u) throws RemoteException {
 		if(dao.insererUtilisateur(u)) return true;
 		return false;
-	}
-
-	@Override
-	public void informerUtilisateur(Utilisateur u) {
 	}
 
 	@Override
@@ -62,6 +59,11 @@ public  UtilisateurDao dao;
 	}
 	public String testRMI() throws RemoteException {
 		return dao.testRMI();
+	}
+	@Override
+	public void informerUtilisateur(Utilisateur u, Produit p) throws RemoteException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

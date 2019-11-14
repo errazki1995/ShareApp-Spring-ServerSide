@@ -3,6 +3,7 @@ package com.common.gustaveeiffel.upem;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -20,13 +21,15 @@ public class Produit extends UnicastRemoteObject implements Serializable{
 	private double prix;
 	private int nombreEmprunt;
 	private Date dateAjout;
+	
+	private List<Image>images;
 
 
 	public Produit() throws RemoteException{
 
 	}
 
-	public Produit(int produitId,String nomProduit,int typProduit,String commentaire,String note,int utilisateurId,Date dateAjout) throws RemoteException {
+	public Produit(int produitId,String nomProduit,int typProduit,String commentaire,String note,int utilisateurId,Date dateAjout,List<Image>images) throws RemoteException {
 		this.produitId=produitId;
 		this.nomProduit= nomProduit;
 		this.typeProduit = typProduit;
@@ -35,6 +38,7 @@ public class Produit extends UnicastRemoteObject implements Serializable{
 		this.utilisateurId = utilisateurId;
 		Calendar calendar = Calendar.getInstance();
 		dateAjout = new Date(calendar.getTime().getTime());
+		this.images= images;
 		//SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 		//to show the date | String theDate = formatter.format(date)
 	}

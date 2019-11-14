@@ -18,14 +18,14 @@ private Role role;
 private String pseudo;
 private String motdepasse;
 private String sexe;
-
+private String email;
 
 
 public Utilisateur() throws RemoteException{
 	
 }
 public Utilisateur(String nom, String prenom, int nombreEmprunt, int roleid, String pseudo,
-		String motdepasse, String sexe) throws RemoteException {
+		String motdepasse, String sexe,String email) throws RemoteException {
 	super();
 	this.nom = nom;
 	this.prenom = prenom;
@@ -34,6 +34,7 @@ public Utilisateur(String nom, String prenom, int nombreEmprunt, int roleid, Str
 	this.pseudo = pseudo;
 	this.motdepasse = motdepasse;
 	this.sexe = sexe;
+	this.email=email;
 }
 public  Utilisateur(String ...row) throws RemoteException {
 	
@@ -45,6 +46,7 @@ public  Utilisateur(String ...row) throws RemoteException {
 	this.roleid=toInt(row[5]);
 	this.nombreEmprunt=toInt(row[6]);
 	this.sexe=row[7];
+	this.email=row[8];
 }
 public Utilisateur(Role r,String ...row) throws RemoteException {
 
@@ -56,6 +58,7 @@ public Utilisateur(Role r,String ...row) throws RemoteException {
 	this.roleid=toInt(row[5]);
 	this.nombreEmprunt=toInt(row[6]);
 	this.sexe=row[7];
+	this.email=row[8];
     setRole(r);
 }
 

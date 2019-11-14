@@ -6,8 +6,8 @@ import java.rmi.RemoteException;
 
 import com.common.gustaveeiffel.upem.Produit;
 import com.common.gustaveeiffel.upem.ProduitService;
-import com.server.gustaveeiffel.upem.Dao.DatabaseLauncher;
-import com.server.gustaveeiffel.upem.Dao.IDatabaseLauncher;
+import com.server.gustaveeiffel.upem.Dao.Config;
+import com.server.gustaveeiffel.upem.Dao.Iconfig;
 import com.server.gustaveeiffel.upem.business.ProduitServiceDefault;
 import com.server.gustaveeiffel.upem.datasource.IDatabase;
 
@@ -21,7 +21,7 @@ public class TestProduit {
 	}
 
 	public IDatabase init() throws RemoteException {
-		IDatabaseLauncher start = new DatabaseLauncher();
+		Iconfig start = new Config();
 		return start.dbinit();
 	}
 
@@ -44,7 +44,7 @@ public class TestProduit {
 		p.setCommentaire("charger la avant de seteindre");
 		p.setUtilisateurId(1);
 		p.setTypeProduit(3);
-		produitservice.Ajouter(p);
+	//	produitservice.AjouterP(p);
 	}
 
 	public void testChercherProduit() throws RemoteException {
